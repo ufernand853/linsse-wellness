@@ -1,36 +1,53 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Linsse Wellness
 
-## Getting Started
+MVP web de relajación y bienestar general. Combina paisajes inmersivos, una guía de respiración y movimiento visual bilateral suave. No es una herramienta terapéutica ni sustituye atención profesional.
 
-First, run the development server:
+## Stack y decisiones
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+- **Next.js 16 (App Router), React 19 y TypeScript**.
+- **Panorama liviano propio:** una imagen panorámica local desplazable con pointer, touch y teclado. Evita cargar Three.js para el MVP, funciona sin giroscopio y no depende de servicios externos.
+- **Audio:** Web Audio API crea un ambiente filtrado de volumen bajo después de una interacción del usuario.
+- **Animación:** CSS para respiración y estímulo bilateral, con desactivación bajo `prefers-reduced-motion`.
+- **Estado:** estado React en memoria. `localStorage` se usa únicamente para “Mi lugar” y nunca para las puntuaciones subjetivas.
+
+## Arquitectura
+
+```text
+app/                         shell, metadata y estilos globales
+components/                  iconografía SVG local
+features/audio/              ambiente Web Audio y cleanup
+features/bilateral/          estímulo visual independiente
+features/breathing/          ciclo 4 s / 6 s independiente
+features/panorama/           visor interactivo sin librerías pesadas
+features/session/            configuración, flujo, player y resultado
+features/wellbeing-score/    escala accesible 0–10
+public/scenes/               cuatro paisajes panorámicos SVG locales
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Ejecución
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+npm install
+npm run dev
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Abrir `http://localhost:3000`. Para validar producción:
 
-## Learn More
+```bash
+npm run lint
+npx tsc --noEmit
+npm run build
+npm start
+```
 
-To learn more about Next.js, take a look at the following resources:
+## Flujo implementado
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Inicio → entorno → modo → duración → puntuación inicial → sesión → puntuación final → cierre. La sesión incluye pausa/reanudación, salida inmediata, mute, temporizador, ajustes de velocidad/tamaño/brillo/volumen y cleanup al desmontar. En desarrollo aparecen la duración de 30 segundos y el salto al cierre.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Eventos conceptuales (sin analytics)
 
-## Deploy on Vercel
+Si se agrega instrumentación en el futuro, el límite propuesto es: `session_started`, `session_completed`, `session_abandoned`, `mode_selected` y `environment_selected`. El MVP no conecta ningún servicio ni envía información.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Compatibilidad y límites
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Diseñado mobile-first para Safari iOS, Chrome Android, Chrome/Edge y Safari desktop modernos. El panorama usa drag/touch y flechas del teclado; no se incluyó giroscopio. Los paisajes son ilustraciones SVG locales de bajo peso, no fotografías 360 equirectangulares. El ambiente Web Audio es sintético para mantener el proyecto autocontenido y puede permanecer silenciado hasta la primera interacción por las políticas del navegador.
