@@ -44,6 +44,12 @@ npm start
 
 Inicio → entorno → modo → duración → puntuación inicial → sesión → puntuación final → cierre. La sesión incluye pausa/reanudación, salida inmediata, mute, temporizador, ajustes de velocidad/tamaño/brillo/volumen y cleanup al desmontar. En desarrollo aparecen la duración de 30 segundos y el salto al cierre.
 
+### Configuración de imágenes, movimiento y sonido
+
+- Las imágenes disponibles y sus rutas se configuran en `features/session/data.ts`; los archivos locales viven en `public/scenes/`. Reemplazá un SVG conservando el nombre o agregá allí un nuevo asset y registralo en `environments`.
+- Al elegir “Movimiento suave” o “Sesión guiada” aparece una sección para seleccionar mariposa/luz y velocidad. Durante la sesión, “Ajustar” permite cambiar además tamaño y brillo. El estímulo está integrado al visor y acompaña horizontalmente el panorama al arrastrarlo.
+- El sonido no usa archivos musicales: es un paisaje sonoro ambiental generado con Web Audio, con un perfil diferente por entorno. Dentro de la sesión hay que pulsar “Activar sonido ambiente” una vez para cumplir la política de reproducción de los navegadores; luego se controla con mute y volumen.
+
 ## Eventos conceptuales (sin analytics)
 
 Si se agrega instrumentación en el futuro, el límite propuesto es: `session_started`, `session_completed`, `session_abandoned`, `mode_selected` y `environment_selected`. El MVP no conecta ningún servicio ni envía información.

@@ -10,6 +10,6 @@ export const environments: { id: EnvironmentId; name: string; description: strin
 export const modes: { id: SessionMode; name: string; description: string }[] = [
   { id: "landscape", name: "Solo paisaje", description: "Observá y escuchá a tu manera." },
   { id: "breathing", name: "Respiración", description: "Una guía visual de 4 segundos al inhalar y 6 al exhalar." },
-  { id: "bilateral", name: "Movimiento suave", description: "Una luz recorre la pantalla de forma continua." },
+  { id: "bilateral", name: "Movimiento suave", description: "Una mariposa de luz recorre el panorama de forma continua." },
   { id: "guided", name: "Sesión guiada", description: "Paisaje, respiración y movimiento se alternan suavemente." },
 ];

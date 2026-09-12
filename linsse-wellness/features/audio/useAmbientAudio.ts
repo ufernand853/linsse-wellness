@@ -1,9 +1,11 @@
 import { useCallback, useEffect, useRef } from "react";
+import type { EnvironmentId } from "../session/types";
 
-export function useAmbientAudio(enabled: boolean, volume: number, paused: boolean) {
+export function useAmbientAudio(environment: EnvironmentId, enabled: boolean, volume: number, paused: boolean) {
   const contextRef = useRef<AudioContext | null>(null);
   const sourceRef = useRef<AudioBufferSourceNode | null>(null);
   const gainRef = useRef<GainNode | null>(null);
+  const oscillatorsRef = useRef<OscillatorNode[]>([]);
 
   const start = useCallback(() => {
     if (contextRef.current) return;
@@ -17,20 +19,31 @@ export function useAmbientAudio(enabled: boolean, volume: number, paused: boolea
     const source = context.createBufferSource();
     const filter = context.createBiquadFilter();
     const gain = context.createGain();
-    filter.type = "lowpass"; filter.frequency.value = 620; source.buffer = buffer; source.loop = true;
-    gain.gain.value = volume * 0.18; source.connect(filter).connect(gain).connect(context.destination); source.start();
+    const profiles: Record<EnvironmentId, { cutoff: number; notes: number[] }> = {
+      lake: { cutoff: 780, notes: [174.61, 261.63] }, forest: { cutoff: 1050, notes: [146.83, 220] },
+      beach: { cutoff: 520, notes: [130.81, 196] }, night: { cutoff: 430, notes: [110, 164.81] },
+    };
+    const profile = profiles[environment];
+    filter.type = "lowpass"; filter.frequency.value = profile.cutoff; source.buffer = buffer; source.loop = true;
+    gain.gain.value = enabled && !paused ? volume * 0.42 : 0; source.connect(filter).connect(gain).connect(context.destination); source.start();
+    const oscillators = profile.notes.map((frequency, index) => {
+      const oscillator = context.createOscillator(); const toneGain = context.createGain();
+      oscillator.type = "sine"; oscillator.frequency.value = frequency; toneGain.gain.value = index === 0 ? 0.018 : 0.009;
+      oscillator.connect(toneGain).connect(gain); oscillator.start(); return oscillator;
+    });
     contextRef.current = context; sourceRef.current = source; gainRef.current = gain;
-  }, [volume]);
+    oscillatorsRef.current = oscillators;
+  }, [enabled, environment, paused, volume]);
 
   useEffect(() => {
     const context = contextRef.current;
     const gain = gainRef.current;
     if (!context || !gain) return;
-    gain.gain.setTargetAtTime(enabled && !paused ? volume * 0.18 : 0, context.currentTime, 0.25);
+    gain.gain.setTargetAtTime(enabled && !paused ? volume * 0.42 : 0, context.currentTime, 0.25);
   }, [enabled, paused, volume]);
 
   const stop = useCallback(() => {
-    sourceRef.current?.stop(); sourceRef.current?.disconnect(); gainRef.current?.disconnect(); void contextRef.current?.close();
+    sourceRef.current?.stop(); sourceRef.current?.disconnect(); oscillatorsRef.current.forEach((node) => { node.stop(); node.disconnect(); }); gainRef.current?.disconnect(); void contextRef.current?.close();
     sourceRef.current = null; gainRef.current = null; contextRef.current = null;
   }, []);
   useEffect(() => stop, [stop]);

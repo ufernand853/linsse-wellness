@@ -1,6 +1,7 @@
 export type EnvironmentId = "lake" | "forest" | "beach" | "night";
 export type SessionMode = "landscape" | "breathing" | "bilateral" | "guided";
 export type BilateralSpeed = "slow" | "medium" | "fast";
+export type StimulusStyle = "light" | "butterfly";
 export type View = "home" | "setup" | "session" | "score" | "result";
 
 export interface SessionConfig {
@@ -10,6 +11,7 @@ export interface SessionConfig {
   initialScore: number;
   finalScore: number;
   bilateralSpeed: BilateralSpeed;
+  stimulusStyle: StimulusStyle;
   stimulusSize: number;
   stimulusOpacity: number;
   audioEnabled: boolean;

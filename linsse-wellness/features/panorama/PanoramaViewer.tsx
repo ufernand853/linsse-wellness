@@ -1,6 +1,6 @@
-import { useRef, useState } from "react";
+import { useRef, useState, type ReactNode } from "react";
 
-export function PanoramaViewer({ image, name }: { image: string; name: string }) {
+export function PanoramaViewer({ image, name, children }: { image: string; name: string; children?: ReactNode }) {
   const [position, setPosition] = useState(50);
   const dragging = useRef<{ x: number; start: number } | null>(null);
   return <div className="panorama" role="img" aria-label={`Vista panorámica: ${name}`} tabIndex={0}
@@ -10,5 +10,6 @@ export function PanoramaViewer({ image, name }: { image: string; name: string })
     onPointerUp={() => { dragging.current = null; }}
     onKeyDown={(event) => { if (event.key === "ArrowLeft") setPosition((value) => Math.max(0, value - 4)); if (event.key === "ArrowRight") setPosition((value) => Math.min(100, value + 4)); }}>
     <div className="panorama-shade" />
+    <div className="panorama-world" style={{ transform: `translateX(${(50 - position) * 0.1}vw)` }}>{children}</div>
   </div>;
 }
